@@ -5,7 +5,7 @@
 #include <ldap++.h>
 #include <ldap.h>
 
-namespace ldap
+namespace ldap_client
 {
 LDAPConnection::LDAPConnection(std::string uri)
 {
