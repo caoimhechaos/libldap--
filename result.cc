@@ -12,4 +12,9 @@ LDAPResult::LDAPResult(LDAPConnection* conn, LDAPMessage* msg)
 : _conn(conn), _msg(msg)
 {
 }
+
+LDAPResult::~LDAPResult()
+{
+	ldap_msgfree(_msg);
+}
 }
