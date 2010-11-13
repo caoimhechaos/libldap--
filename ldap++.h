@@ -2,10 +2,15 @@
 #define INCLUDED_LDAPXX_H 1
 
 #include <string>
+#include <vector>
 #include <ldap.h>
 
 namespace ldap_client
 {
+
+const std::vector<std::string> kLdapFilterAll = { "+" };
+
+class LDAPConnection;
 
 class LDAPException : public std::exception {
     public:
@@ -379,6 +384,17 @@ class LDAPErrReferralLimitExceeded : public LDAPException
 
 void LDAPErrCode2Exception(int errcode);
 
+class LDAPResult
+{
+    public:
+	LDAPResult(LDAPConnection* conn, LDAPMessage* msg);
+	~LDAPResult();
+
+    private:
+	LDAPConnection* _conn;
+	LDAPMessage* _msg;
+};
+
 class LDAPConnection
 {
     public:
@@ -386,6 +402,19 @@ class LDAPConnection
 
 	void SetDebuglevel(int newlevel);
 	void SimpleBind(std::string user, std::string password);
+
+	LDAPResult* Search(const std::string base, const std::string filter);
+	LDAPResult* Search(const std::string base, const std::string filter,
+		long timeout);
+	LDAPResult* Search(const std::string base, int scope,
+		const std::string filter);
+	LDAPResult* Search(const std::string base, int scope,
+		const std::string filter, long timeout);
+	LDAPResult* Search(const std::string base, int scope,
+		const std::string filter, const std::vector<std::string> attrs);
+	LDAPResult* Search(const std::string base, int scope,
+		const std::string filter,
+		const std::vector<std::string> attrs, long timeout);
 
     private:
 	LDAP *_ldap;
