@@ -15,6 +15,11 @@ LDAPConnection::LDAPConnection(std::string uri)
 		LDAPErrCode2Exception(rc);
 }
 
+LDAPConnection::~LDAPConnection()
+{
+	ldap_unbind(_ldap);
+}
+
 void LDAPConnection::SetDebuglevel(int newlevel)
 {
 	int rc = ldap_set_option(this->_ldap, LDAP_OPT_DEBUG_LEVEL, &newlevel);

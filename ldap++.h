@@ -3,10 +3,12 @@
 
 #include <string>
 #include <vector>
+#include <ext/hash_map>
 #include <ldap.h>
 
 namespace ldap_client
 {
+using namespace __gnu_cxx;
 
 const std::vector<std::string> kLdapFilterAll = { "+" };
 
@@ -384,21 +386,46 @@ class LDAPErrReferralLimitExceeded : public LDAPException
 
 void LDAPErrCode2Exception(int errcode);
 
+class LDAPEntry
+{
+    public:
+	LDAPEntry(LDAPConnection *conn, LDAPMessage *entry);
+	~LDAPEntry();
+
+	std::string GetDN();
+	std::vector<std::string> GetKeys();
+	std::string GetFirstValue(std::string key);
+	std::vector<std::string> GetValue(std::string key);
+
+    private:
+	LDAPConnection *_conn;
+	LDAPMessage *_msg;
+	std::string _dn;
+	hash_map<std::string, std::vector<std::string> > _data;
+};
+
 class LDAPResult
 {
     public:
 	LDAPResult(LDAPConnection* conn, LDAPMessage* msg);
 	~LDAPResult();
 
+	std::vector<LDAPEntry>* GetEntries();
+
     private:
 	LDAPConnection* _conn;
 	LDAPMessage* _msg;
+	std::vector<LDAPEntry> _entries;
 };
 
 class LDAPConnection
 {
+	friend class LDAPResult;
+	friend class LDAPEntry;
+
     public:
 	LDAPConnection(std::string uri);
+	~LDAPConnection();
 
 	void SetDebuglevel(int newlevel);
 	void SimpleBind(std::string user, std::string password);
@@ -416,7 +443,7 @@ class LDAPConnection
 		const std::string filter,
 		const std::vector<std::string> attrs, long timeout);
 
-    private:
+    protected:
 	LDAP *_ldap;
 };
 
