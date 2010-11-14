@@ -3,13 +3,12 @@
 
 #include <string>
 #include <vector>
-#include <ext/hash_map>
+#include <boost/scoped_ptr.hpp>
+#include <unordered_map>
 #include <ldap.h>
 
 namespace ldap_client
 {
-using namespace __gnu_cxx;
-
 const std::vector<std::string> kLdapFilterAll = { "+" };
 
 class LDAPConnection;
@@ -401,7 +400,7 @@ class LDAPEntry
 	LDAPConnection *_conn;
 	LDAPMessage *_msg;
 	std::string _dn;
-	hash_map<std::string, std::vector<std::string> > _data;
+	std::unordered_map<std::string, std::vector<std::string>*> _data;
 };
 
 class LDAPResult
