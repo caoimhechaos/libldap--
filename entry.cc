@@ -4,7 +4,6 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
-#include <boost/scoped_ptr.hpp>
 #include <memory>
 #include <ldap++.h>
 #include <ldap.h>

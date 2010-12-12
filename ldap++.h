@@ -3,7 +3,6 @@
 
 #include <string>
 #include <vector>
-#include <boost/scoped_ptr.hpp>
 #include <unordered_map>
 #include <ldap.h>
 
