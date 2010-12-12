@@ -8,11 +8,24 @@
 
 namespace ldap_client
 {
-LDAPConnection::LDAPConnection(std::string uri)
+void LDAPSetDebuglevel(int newlevel)
 {
-	int rc = ldap_initialize(&this->_ldap, uri.c_str());
+	int rc = ldap_set_option(NULL, LDAP_OPT_DEBUG_LEVEL, &newlevel);
 	if (rc)
 		LDAPErrCode2Exception(rc);
+
+	rc = ber_set_option(NULL, LBER_OPT_DEBUG_LEVEL, &newlevel);
+	if (rc)
+		LDAPErrCode2Exception(rc);
+}
+
+LDAPConnection::LDAPConnection(std::string uri, int version)
+{
+	int rc = ldap_initialize(&_ldap, uri.c_str());
+	if (rc)
+		LDAPErrCode2Exception(rc);
+
+	SetVersion(version);
 }
 
 LDAPConnection::~LDAPConnection()
@@ -20,9 +33,26 @@ LDAPConnection::~LDAPConnection()
 	ldap_unbind(_ldap);
 }
 
-void LDAPConnection::SetDebuglevel(int newlevel)
+std::string LDAPConnection::GetLastError()
 {
-	int rc = ldap_set_option(this->_ldap, LDAP_OPT_DEBUG_LEVEL, &newlevel);
+	char *str;
+	int rc;
+
+	rc = ldap_get_option(this->_ldap, LDAP_OPT_ERROR_STRING, &str);
+	if (rc)
+		LDAPErrCode2Exception(rc);
+
+	return std::string(str);
+}
+
+void LDAPConnection::SetVersion(int newversion)
+{
+	int rc;
+
+	if (newversion != LDAP_VERSION2 && newversion != LDAP_VERSION3)
+		throw new LDAPErrParamError("Unsupported LDAP version");
+
+	rc = ldap_set_option(this->_ldap, LDAP_OPT_PROTOCOL_VERSION, &newversion);
 	if (rc)
 		LDAPErrCode2Exception(rc);
 }
@@ -30,6 +60,23 @@ void LDAPConnection::SetDebuglevel(int newlevel)
 void LDAPConnection::SimpleBind(std::string user, std::string password)
 {
 	int rc = ldap_simple_bind_s(this->_ldap, user.c_str(), password.c_str());
+	if (rc)
+		LDAPErrCode2Exception(rc);
+}
+
+void LDAPConnection::SASLBind(std::string user, std::string password)
+{
+	LDAPControl **sctrlsp = NULL, **cctrlsp = NULL;
+	struct berval passwd;
+	int rc;
+
+	passwd.bv_val = ber_strdup(password.c_str());
+	passwd.bv_len = strlen(passwd.bv_val);
+
+	rc = ldap_sasl_bind_s(this->_ldap, user.c_str(), LDAP_SASL_SIMPLE,
+		&passwd, sctrlsp, cctrlsp, NULL);
+	if (passwd.bv_val)
+		ber_memfree(passwd.bv_val);
 	if (rc)
 		LDAPErrCode2Exception(rc);
 }

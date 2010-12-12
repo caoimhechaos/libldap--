@@ -416,17 +416,21 @@ class LDAPResult
 	std::vector<LDAPEntry> _entries;
 };
 
+void LDAPSetDebuglevel(int newlevel);
+
 class LDAPConnection
 {
 	friend class LDAPResult;
 	friend class LDAPEntry;
 
     public:
-	LDAPConnection(std::string uri);
+	LDAPConnection(std::string uri, int version = LDAP_VERSION3);
 	~LDAPConnection();
 
-	void SetDebuglevel(int newlevel);
+	std::string GetLastError();
+	void SetVersion(int newversion);
 	void SimpleBind(std::string user, std::string password);
+	void SASLBind(std::string user, std::string password);
 
 	LDAPResult* Search(const std::string base, const std::string filter);
 	LDAPResult* Search(const std::string base, const std::string filter,
