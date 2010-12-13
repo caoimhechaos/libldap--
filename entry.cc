@@ -51,4 +51,25 @@ std::string LDAPEntry::GetDN()
 {
 	return _dn;
 }
+
+std::vector<std::string>* LDAPEntry::GetKeys()
+{
+	std::unordered_map<std::string, std::vector<std::string>*>::iterator iter;
+	std::vector<std::string>* rv = new std::vector<std::string>();
+
+	for (iter = _data.begin(); iter != _data.end(); iter++)
+		rv->push_back((*iter).first);
+
+	return rv;
+}
+
+std::vector<std::string>* LDAPEntry::GetValue(std::string key)
+{
+	return _data[key.c_str()];
+}
+
+std::string* LDAPEntry::GetFirstValue(std::string key)
+{
+	return &_data[key.c_str()]->front();
+}
 }
