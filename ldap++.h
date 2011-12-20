@@ -392,7 +392,7 @@ class LDAPEntry
 
 	std::string GetDN();
 	std::vector<std::string>* GetKeys();
-	std::string* GetFirstValue(std::string key);
+	std::string GetFirstValue(std::string key);
 	std::vector<std::string>* GetValue(std::string key);
 
     private:
@@ -417,6 +417,7 @@ class LDAPResult
 };
 
 void LDAPSetDebuglevel(int newlevel);
+void LDAPSetCACert(std::string path);
 
 class LDAPConnection
 {
