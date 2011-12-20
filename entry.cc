@@ -68,8 +68,11 @@ std::vector<std::string>* LDAPEntry::GetValue(std::string key)
 	return _data[key.c_str()];
 }
 
-std::string* LDAPEntry::GetFirstValue(std::string key)
+std::string LDAPEntry::GetFirstValue(std::string key)
 {
-	return &_data[key.c_str()]->front();
+	if (_data[key.c_str()] == 0)
+		return std::string("");
+
+	return _data[key.c_str()]->front();
 }
 }

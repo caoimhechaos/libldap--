@@ -19,6 +19,16 @@ void LDAPSetDebuglevel(int newlevel)
 		LDAPErrCode2Exception(rc);
 }
 
+void LDAPSetCACert(std::string path)
+{
+	int rc;
+
+	rc = ldap_set_option(NULL, LDAP_OPT_X_TLS_CACERTFILE, path.c_str());
+	if (rc)
+		LDAPErrCode2Exception(rc);
+}
+
+
 LDAPConnection::LDAPConnection(std::string uri, int version)
 {
 	int rc = ldap_initialize(&_ldap, uri.c_str());
