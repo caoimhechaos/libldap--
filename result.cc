@@ -14,7 +14,7 @@ LDAPResult::LDAPResult(LDAPConnection* conn, LDAPMessage* msg)
 {
 	LDAPMessage *e = ldap_first_entry(_conn->_ldap, _msg);
 
-	do
+	if (e != NULL) do
 	{
 		_entries.push_back(LDAPEntry(_conn, e));
 	}
