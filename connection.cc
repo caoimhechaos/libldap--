@@ -95,7 +95,7 @@ LDAPResult* LDAPConnection::Search(const std::string base, int scope,
 	const std::string filter, const std::vector<std::string> attrs,
 	long timeout)
 {
-	char* attrlist[attrs.size() + 1];
+	std::vector<char*> attrlist;
 	timeval tv;
 	LDAPMessage *msg;
 	int rc, i;
@@ -104,15 +104,12 @@ LDAPResult* LDAPConnection::Search(const std::string base, int scope,
 	tv.tv_usec = (timeout % 1000) * 1000;
 
 	for (i = 0; i < attrs.size(); i++)
-		attrlist[i] = strndup(attrs[i].c_str(), attrs[i].length());
+		attrlist.push_back(const_cast<char*>(attrs[i].c_str()));
 
-	attrlist[i] = 0;
+	attrlist.push_back(0);
 
 	rc = ldap_search_ext_s(_ldap, base.c_str(), scope,
-		filter.c_str(), attrlist, 0, 0, 0, &tv, 0, &msg);
-
-	for (i = 0; i < attrs.size(); i++)
-		delete attrlist[i];
+		filter.c_str(), &attrlist[0], 0, 0, 0, &tv, 0, &msg);
 
 	if (rc)
 		LDAPErrCode2Exception(rc);
@@ -123,7 +120,7 @@ LDAPResult* LDAPConnection::Search(const std::string base, int scope,
 LDAPResult* LDAPConnection::Search(const std::string base, int scope,
 	const std::string filter, const std::vector<std::string> attrs)
 {
-	return Search(base, scope, filter, kLdapFilterAll, 30000);
+	return Search(base, scope, filter, attrs, 30000);
 }
 
 LDAPResult* LDAPConnection::Search(const std::string base, int scope,
