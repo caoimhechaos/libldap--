@@ -3,7 +3,7 @@
 
 #include <string>
 #include <vector>
-#include <unordered_map>
+#include <map>
 #include <ldap.h>
 
 namespace ldap_client
@@ -399,7 +399,7 @@ class LDAPEntry
 	LDAPConnection *_conn;
 	LDAPMessage *_msg;
 	std::string _dn;
-	std::unordered_map<std::string, std::vector<std::string>*> _data;
+	std::map<std::string, std::vector<std::string>*> _data;
 };
 
 class LDAPResult

@@ -3,7 +3,7 @@
 #endif
 #include <string>
 #include <vector>
-#include <unordered_map>
+#include <map>
 #include <memory>
 #include <ldap++.h>
 #include <ldap.h>
@@ -41,7 +41,7 @@ LDAPEntry::LDAPEntry(LDAPConnection* conn, LDAPMessage* entry)
 
 LDAPEntry::~LDAPEntry()
 {
-	std::unordered_map<std::string, std::vector<std::string>*>::iterator iter;
+	std::map<std::string, std::vector<std::string>*>::iterator iter;
 
 	for (iter = _data.begin(); iter != _data.end(); iter++)
 		delete (*iter).second;
@@ -54,7 +54,7 @@ std::string LDAPEntry::GetDN()
 
 std::vector<std::string>* LDAPEntry::GetKeys()
 {
-	std::unordered_map<std::string, std::vector<std::string>*>::iterator iter;
+	std::map<std::string, std::vector<std::string>*>::iterator iter;
 	std::vector<std::string>* rv = new std::vector<std::string>();
 
 	for (iter = _data.begin(); iter != _data.end(); iter++)
