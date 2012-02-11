@@ -30,9 +30,9 @@ LDAPEntry::LDAPEntry(LDAPConnection* conn, LDAPMessage* entry)
 			values->push_back(std::string(vals[i]));
 
 		ldap_value_free(vals);
-		ldap_memfree(attr);
 
-		_data[attr] = values;
+		_data[std::string(attr)] = values;
+		ldap_memfree(attr);
 	}
 
 	if (ptr != 0)
@@ -65,14 +65,14 @@ std::vector<std::string>* LDAPEntry::GetKeys()
 
 std::vector<std::string>* LDAPEntry::GetValue(std::string key)
 {
-	return _data[key.c_str()];
+	return _data[key];
 }
 
 std::string LDAPEntry::GetFirstValue(std::string key)
 {
-	if (_data[key.c_str()] == 0)
+	if (_data.find(key) == _data.end())
 		return std::string("");
 
-	return _data[key.c_str()]->front();
+	return _data[key]->front();
 }
 }
