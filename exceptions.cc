@@ -1,5 +1,5 @@
 #include <ldap.h>
-#include <ldap++.h>
+#include "ldap++.h"
 
 namespace ldap_client
 {
@@ -18,6 +18,13 @@ const char* LDAPException::what() const throw()
 	return _reason;
 }
 
+/**
+ * Throw the appropriate exception for the given LDAP error code.
+ * If LDAP_SUCCESS is passed, no error is thrown.
+ *
+ * @param errcode Valid LDAP error code.
+ * @throw LDAPError Error corresponding to the error code.
+ */
 void LDAPErrCode2Exception(int errcode)
 {
 	switch (errcode)

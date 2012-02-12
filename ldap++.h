@@ -388,6 +388,7 @@ class LDAPEntry
 {
     public:
 	LDAPEntry(LDAPConnection *conn, LDAPMessage *entry);
+	LDAPEntry(LDAPConnection *conn, std::string dn);
 	~LDAPEntry();
 
 	std::string GetDN();
@@ -395,11 +396,19 @@ class LDAPEntry
 	std::string GetFirstValue(std::string key);
 	std::vector<std::string>* GetValue(std::string key);
 
+	void AddValue(std::string key, std::string value);
+	void RemoveValue(std::string key, std::string value);
+	void RemoveAllValues(std::string attribute);
+	void Sync();
+
     private:
 	LDAPConnection *_conn;
-	LDAPMessage *_msg;
 	std::string _dn;
 	std::map<std::string, std::vector<std::string>*> _data;
+	bool _isnew;
+
+	std::vector<std::pair<std::string, std::string>> _added;
+	std::vector<std::pair<std::string, std::string>> _removed;
 };
 
 class LDAPResult
@@ -412,7 +421,6 @@ class LDAPResult
 
     private:
 	LDAPConnection* _conn;
-	LDAPMessage* _msg;
 	std::vector<LDAPEntry> _entries;
 };
 
