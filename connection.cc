@@ -83,7 +83,7 @@ std::string LDAPConnection::GetLastError()
  * Set the LDAP version used in the connection.
  *
  * @param newversion New LDAP version (LDAP_VERSION2 or LDAP_VERSION3).
- * @throws LDAPError Invalid LDAP version or unable to set.
+ * @throws LDAPException Invalid LDAP version or unable to set.
  */
 void LDAPConnection::SetVersion(int newversion)
 {
@@ -103,7 +103,7 @@ void LDAPConnection::SetVersion(int newversion)
  *
  * @param user     LDAP user name (typically a DN).
  * @param password LDAP password as a string.
- * @throws LDAPError Unable to perform bind.
+ * @throws LDAPException Unable to perform bind.
  */
 void LDAPConnection::SimpleBind(std::string user, std::string password)
 {
@@ -126,7 +126,7 @@ void LDAPConnection::SimpleBind(std::string user, std::string password)
  *
  * @param user     LDAP user name (typically a DN).
  * @param password LDAP password as a string.
- * @throws LDAPError Unable to perform bind.
+ * @throws LDAPException Unable to perform bind.
  */
 void LDAPConnection::SASLBind(std::string user, std::string password)
 {
