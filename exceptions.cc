@@ -23,7 +23,7 @@ const char* LDAPException::what() const throw()
  * If LDAP_SUCCESS is passed, no error is thrown.
  *
  * @param errcode Valid LDAP error code.
- * @throw LDAPError Error corresponding to the error code.
+ * @throw LDAPException Error corresponding to the error code.
  */
 void LDAPErrCode2Exception(int errcode)
 {
