@@ -39,7 +39,6 @@ AC_SUBST(LIBS)
 AC_CHECK_HEADER([ldap.h], [], AC_ERROR([OpenLDAP headers not found]))
 
 # Checks for typedefs, structures, and compiler characteristics.
-AC_DEFINE([LDAP_DEPRECATED], [1], [Use deprecated LDAP functions])
 
 # Checks for library functions.
 
