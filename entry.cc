@@ -58,8 +58,6 @@ LDAPEntry::LDAPEntry(LDAPConnection* conn, LDAPMessage* entry)
 
 	if (ptr != 0)
 		ber_free(ptr, 0);
-
-	ldap_msgfree(entry);
 }
 
 /**
