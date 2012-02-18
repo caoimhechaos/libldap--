@@ -17,11 +17,11 @@ void LDAPSetDebuglevel(int newlevel)
 {
 	int rc = ldap_set_option(NULL, LDAP_OPT_DEBUG_LEVEL, &newlevel);
 	if (rc)
-		LDAPErrCode2Exception(rc);
+		LDAPErrCode2Exception(NULL, rc);
 
 	rc = ber_set_option(NULL, LBER_OPT_DEBUG_LEVEL, &newlevel);
 	if (rc)
-		LDAPErrCode2Exception(rc);
+		LDAPErrCode2Exception(NULL, rc);
 }
 
 /**
@@ -36,7 +36,7 @@ void LDAPSetCACert(std::string path)
 
 	rc = ldap_set_option(NULL, LDAP_OPT_X_TLS_CACERTFILE, path.c_str());
 	if (rc)
-		LDAPErrCode2Exception(rc);
+		LDAPErrCode2Exception(NULL, rc);
 }
 
 /**
@@ -49,7 +49,7 @@ LDAPConnection::LDAPConnection(std::string uri, int version)
 {
 	int rc = ldap_initialize(&_ldap, uri.c_str());
 	if (rc)
-		LDAPErrCode2Exception(rc);
+		LDAPErrCode2Exception(_ldap, rc);
 
 	SetVersion(version);
 }
@@ -72,9 +72,9 @@ std::string LDAPConnection::GetLastError()
 	char *str;
 	int rc;
 
-	rc = ldap_get_option(this->_ldap, LDAP_OPT_ERROR_STRING, &str);
+	rc = ldap_get_option(_ldap, LDAP_OPT_ERROR_STRING, &str);
 	if (rc)
-		LDAPErrCode2Exception(rc);
+		LDAPErrCode2Exception(_ldap, rc);
 
 	return std::string(str);
 }
@@ -92,9 +92,9 @@ void LDAPConnection::SetVersion(int newversion)
 	if (newversion != LDAP_VERSION2 && newversion != LDAP_VERSION3)
 		throw new LDAPErrParamError("Unsupported LDAP version");
 
-	rc = ldap_set_option(this->_ldap, LDAP_OPT_PROTOCOL_VERSION, &newversion);
+	rc = ldap_set_option(_ldap, LDAP_OPT_PROTOCOL_VERSION, &newversion);
 	if (rc)
-		LDAPErrCode2Exception(rc);
+		LDAPErrCode2Exception(_ldap, rc);
 }
 
 /**
@@ -118,7 +118,7 @@ void LDAPConnection::SimpleBind(std::string user, std::string password)
 
 	free(passwd.bv_val);
 	if (rc)
-		LDAPErrCode2Exception(rc);
+		LDAPErrCode2Exception(_ldap, rc);
 }
 
 /**
@@ -137,12 +137,12 @@ void LDAPConnection::SASLBind(std::string user, std::string password)
 	passwd.bv_val = ber_strdup(password.c_str());
 	passwd.bv_len = strlen(passwd.bv_val);
 
-	rc = ldap_sasl_bind_s(this->_ldap, user.c_str(), LDAP_SASL_SIMPLE,
+	rc = ldap_sasl_bind_s(_ldap, user.c_str(), LDAP_SASL_SIMPLE,
 		&passwd, sctrlsp, cctrlsp, NULL);
 	if (passwd.bv_val)
 		ber_memfree(passwd.bv_val);
 	if (rc)
-		LDAPErrCode2Exception(rc);
+		LDAPErrCode2Exception(_ldap, rc);
 }
 
 /**
@@ -178,7 +178,7 @@ LDAPResult* LDAPConnection::Search(const std::string base, int scope,
 		filter.c_str(), &attrlist[0], 0, 0, 0, &tv, 0, &msg);
 
 	if (rc)
-		LDAPErrCode2Exception(rc);
+		LDAPErrCode2Exception(_ldap, rc);
 
 	return new LDAPResult(this, msg);
 }

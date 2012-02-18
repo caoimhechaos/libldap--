@@ -214,6 +214,8 @@ void LDAPEntry::Sync()
 		std::vector<char*>* values = new std::vector<char*>;
 
 		values->push_back(strdup((*iter).second.c_str()));
+		// This needs to be NULL terminated.
+		values->push_back(0);
 
 		mod->mod_op = LDAP_MOD_ADD;
 		mod->mod_type = strdup((*iter).first.c_str());
@@ -222,19 +224,23 @@ void LDAPEntry::Sync()
 		mods.push_back(mod);
 	}
 
+	// This needs to be NULL terminated.
+	mods.push_back(0);
+
 	if (_isnew)
 		rc = ldap_add_ext_s(_conn->_ldap, _dn.c_str(), &mods[0], 0, 0);
 	else
 		rc = ldap_modify_ext_s(_conn->_ldap, _dn.c_str(), &mods[0], 0, 0);
 
 	for (m_iter = mods.begin(); m_iter != mods.end(); m_iter++)
-	{
-		free((*m_iter)->mod_type);
-		free((*m_iter)->mod_vals.modv_strvals);
-		delete *m_iter;
-	}
+		if (*m_iter)
+		{
+			free((*m_iter)->mod_type);
+			free((*m_iter)->mod_vals.modv_strvals);
+			delete *m_iter;
+		}
 
 	if (rc != LDAP_SUCCESS)
-		LDAPErrCode2Exception(rc);
+		LDAPErrCode2Exception(_conn->_ldap, rc);
 }
 }
