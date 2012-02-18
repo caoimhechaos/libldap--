@@ -415,7 +415,7 @@ class LDAPResult
 {
     public:
 	LDAPResult(LDAPConnection* conn, LDAPMessage* msg);
-	~LDAPResult();
+	~LDAPResult() {};
 
 	std::vector<LDAPEntry>* GetEntries();
 
