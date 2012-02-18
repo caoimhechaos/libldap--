@@ -15,12 +15,16 @@ class LDAPConnection;
 class LDAPException : public std::exception {
     public:
 	LDAPException();
-	LDAPException(const char *str);
+	LDAPException(const char* str);
+	LDAPException(const char* what, const std::string& diag);
+	virtual ~LDAPException() throw() {};
 
 	virtual const char* what() const throw();
+	virtual const std::string diag() const throw();
 
     protected:
-	const char *_reason;
+	const std::string _reason;
+	const std::string _diag;
 };
 
 /* LDAP protocol result codes. */
@@ -29,6 +33,7 @@ class LDAPErrOperationsError : public LDAPException
     public:
 	LDAPErrOperationsError() : LDAPException() {}
 	LDAPErrOperationsError(const char *str) : LDAPException(str) {}
+	LDAPErrOperationsError(const char *str, std::string& diag) : LDAPException(str, diag) {}
 };
 
 class LDAPErrProtocolError : public LDAPException
@@ -36,6 +41,7 @@ class LDAPErrProtocolError : public LDAPException
     public:
 	LDAPErrProtocolError() : LDAPException() {}
 	LDAPErrProtocolError(const char *str) : LDAPException(str) {}
+	LDAPErrProtocolError(const char *str, std::string& diag) : LDAPException(str, diag) {}
 };
 
 class LDAPErrTimelimitExceeded : public LDAPException
@@ -43,6 +49,7 @@ class LDAPErrTimelimitExceeded : public LDAPException
     public:
 	LDAPErrTimelimitExceeded() : LDAPException() {}
 	LDAPErrTimelimitExceeded(const char *str) : LDAPException(str) {}
+	LDAPErrTimelimitExceeded(const char *str, std::string& diag) : LDAPException(str, diag) {}
 };
 
 class LDAPErrSizelimitExceeded : public LDAPException
@@ -50,6 +57,7 @@ class LDAPErrSizelimitExceeded : public LDAPException
     public:
 	LDAPErrSizelimitExceeded() : LDAPException() {}
 	LDAPErrSizelimitExceeded(const char *str) : LDAPException(str) {}
+	LDAPErrSizelimitExceeded(const char *str, std::string& diag) : LDAPException(str, diag) {}
 };
 
 class LDAPErrCompareFalse : public LDAPException
@@ -57,6 +65,7 @@ class LDAPErrCompareFalse : public LDAPException
     public:
 	LDAPErrCompareFalse() : LDAPException() {}
 	LDAPErrCompareFalse(const char *str) : LDAPException(str) {}
+	LDAPErrCompareFalse(const char *str, std::string& diag) : LDAPException(str, diag) {}
 };
 
 class LDAPErrCompareTrue : public LDAPException
@@ -64,6 +73,7 @@ class LDAPErrCompareTrue : public LDAPException
     public:
 	LDAPErrCompareTrue() : LDAPException() {}
 	LDAPErrCompareTrue(const char *str) : LDAPException(str) {}
+	LDAPErrCompareTrue(const char *str, std::string& diag) : LDAPException(str, diag) {}
 };
 
 class LDAPErrStrongAuthNotSupported : public LDAPException
@@ -71,6 +81,7 @@ class LDAPErrStrongAuthNotSupported : public LDAPException
     public:
 	LDAPErrStrongAuthNotSupported() : LDAPException() {}
 	LDAPErrStrongAuthNotSupported(const char *str) : LDAPException(str) {}
+	LDAPErrStrongAuthNotSupported(const char *str, std::string& diag) : LDAPException(str, diag) {}
 };
 
 class LDAPErrStrongAuthRequired : public LDAPException
@@ -78,6 +89,7 @@ class LDAPErrStrongAuthRequired : public LDAPException
     public:
 	LDAPErrStrongAuthRequired() : LDAPException() {}
 	LDAPErrStrongAuthRequired(const char *str) : LDAPException(str) {}
+	LDAPErrStrongAuthRequired(const char *str, std::string& diag) : LDAPException(str, diag) {}
 };
 
 class LDAPErrPartialResults : public LDAPException
@@ -85,6 +97,7 @@ class LDAPErrPartialResults : public LDAPException
     public:
 	LDAPErrPartialResults() : LDAPException() {}
 	LDAPErrPartialResults(const char *str) : LDAPException(str) {}
+	LDAPErrPartialResults(const char *str, std::string& diag) : LDAPException(str, diag) {}
 };
 
 class LDAPErrNoSuchAttribute : public LDAPException
@@ -92,6 +105,7 @@ class LDAPErrNoSuchAttribute : public LDAPException
     public:
 	LDAPErrNoSuchAttribute() : LDAPException() {}
 	LDAPErrNoSuchAttribute(const char *str) : LDAPException(str) {}
+	LDAPErrNoSuchAttribute(const char *str, std::string& diag) : LDAPException(str, diag) {}
 };
 
 class LDAPErrUndefinedType : public LDAPException
@@ -99,6 +113,7 @@ class LDAPErrUndefinedType : public LDAPException
     public:
 	LDAPErrUndefinedType() : LDAPException() {}
 	LDAPErrUndefinedType(const char *str) : LDAPException(str) {}
+	LDAPErrUndefinedType(const char *str, std::string& diag) : LDAPException(str, diag) {}
 };
 
 class LDAPErrInappropriateMatching : public LDAPException
@@ -106,6 +121,7 @@ class LDAPErrInappropriateMatching : public LDAPException
     public:
 	LDAPErrInappropriateMatching() : LDAPException() {}
 	LDAPErrInappropriateMatching(const char *str) : LDAPException(str) {}
+	LDAPErrInappropriateMatching(const char *str, std::string& diag) : LDAPException(str, diag) {}
 };
 
 class LDAPErrConstraintViolation : public LDAPException
@@ -113,6 +129,7 @@ class LDAPErrConstraintViolation : public LDAPException
     public:
 	LDAPErrConstraintViolation() : LDAPException() {}
 	LDAPErrConstraintViolation(const char *str) : LDAPException(str) {}
+	LDAPErrConstraintViolation(const char *str, std::string& diag) : LDAPException(str, diag) {}
 };
 
 class LDAPErrTypeOrValueExists : public LDAPException
@@ -120,6 +137,7 @@ class LDAPErrTypeOrValueExists : public LDAPException
     public:
 	LDAPErrTypeOrValueExists() : LDAPException() {}
 	LDAPErrTypeOrValueExists(const char *str) : LDAPException(str) {}
+	LDAPErrTypeOrValueExists(const char *str, std::string& diag) : LDAPException(str, diag) {}
 };
 
 class LDAPErrInvalidSyntax : public LDAPException
@@ -127,6 +145,7 @@ class LDAPErrInvalidSyntax : public LDAPException
     public:
 	LDAPErrInvalidSyntax() : LDAPException() {}
 	LDAPErrInvalidSyntax(const char *str) : LDAPException(str) {}
+	LDAPErrInvalidSyntax(const char *str, std::string& diag) : LDAPException(str, diag) {}
 };
 
 class LDAPErrNoSuchObject : public LDAPException
@@ -134,6 +153,7 @@ class LDAPErrNoSuchObject : public LDAPException
     public:
 	LDAPErrNoSuchObject() : LDAPException() {}
 	LDAPErrNoSuchObject(const char *str) : LDAPException(str) {}
+	LDAPErrNoSuchObject(const char *str, std::string& diag) : LDAPException(str, diag) {}
 };
 
 class LDAPErrAliasProblem : public LDAPException
@@ -141,6 +161,7 @@ class LDAPErrAliasProblem : public LDAPException
     public:
 	LDAPErrAliasProblem() : LDAPException() {}
 	LDAPErrAliasProblem(const char *str) : LDAPException(str) {}
+	LDAPErrAliasProblem(const char *str, std::string& diag) : LDAPException(str, diag) {}
 };
 
 class LDAPErrInvalidDNSyntax : public LDAPException
@@ -148,6 +169,7 @@ class LDAPErrInvalidDNSyntax : public LDAPException
     public:
 	LDAPErrInvalidDNSyntax() : LDAPException() {}
 	LDAPErrInvalidDNSyntax(const char *str) : LDAPException(str) {}
+	LDAPErrInvalidDNSyntax(const char *str, std::string& diag) : LDAPException(str, diag) {}
 };
 
 class LDAPErrIsLeaf : public LDAPException
@@ -155,6 +177,7 @@ class LDAPErrIsLeaf : public LDAPException
     public:
 	LDAPErrIsLeaf() : LDAPException() {}
 	LDAPErrIsLeaf(const char *str) : LDAPException(str) {}
+	LDAPErrIsLeaf(const char *str, std::string& diag) : LDAPException(str, diag) {}
 };
 
 class LDAPErrAliasDerefProblem : public LDAPException
@@ -162,6 +185,7 @@ class LDAPErrAliasDerefProblem : public LDAPException
     public:
 	LDAPErrAliasDerefProblem() : LDAPException() {}
 	LDAPErrAliasDerefProblem(const char *str) : LDAPException(str) {}
+	LDAPErrAliasDerefProblem(const char *str, std::string& diag) : LDAPException(str, diag) {}
 };
 
 class LDAPErrInappropriateAuth : public LDAPException
@@ -169,6 +193,7 @@ class LDAPErrInappropriateAuth : public LDAPException
     public:
 	LDAPErrInappropriateAuth() : LDAPException() {}
 	LDAPErrInappropriateAuth(const char *str) : LDAPException(str) {}
+	LDAPErrInappropriateAuth(const char *str, std::string& diag) : LDAPException(str, diag) {}
 };
 
 class LDAPErrInvalidCredentials : public LDAPException
@@ -176,6 +201,7 @@ class LDAPErrInvalidCredentials : public LDAPException
     public:
 	LDAPErrInvalidCredentials() : LDAPException() {}
 	LDAPErrInvalidCredentials(const char *str) : LDAPException(str) {}
+	LDAPErrInvalidCredentials(const char *str, std::string& diag) : LDAPException(str, diag) {}
 };
 
 class LDAPErrInsufficientAccess : public LDAPException
@@ -183,6 +209,7 @@ class LDAPErrInsufficientAccess : public LDAPException
     public:
 	LDAPErrInsufficientAccess() : LDAPException() {}
 	LDAPErrInsufficientAccess(const char *str) : LDAPException(str) {}
+	LDAPErrInsufficientAccess(const char *str, std::string& diag) : LDAPException(str, diag) {}
 };
 
 class LDAPErrBusy : public LDAPException
@@ -190,6 +217,7 @@ class LDAPErrBusy : public LDAPException
     public:
 	LDAPErrBusy() : LDAPException() {}
 	LDAPErrBusy(const char *str) : LDAPException(str) {}
+	LDAPErrBusy(const char *str, std::string& diag) : LDAPException(str, diag) {}
 };
 
 class LDAPErrUnavailable : public LDAPException
@@ -197,6 +225,7 @@ class LDAPErrUnavailable : public LDAPException
     public:
 	LDAPErrUnavailable() : LDAPException() {}
 	LDAPErrUnavailable(const char *str) : LDAPException(str) {}
+	LDAPErrUnavailable(const char *str, std::string& diag) : LDAPException(str, diag) {}
 };
 
 class LDAPErrUnwillingToPerform : public LDAPException
@@ -204,6 +233,7 @@ class LDAPErrUnwillingToPerform : public LDAPException
     public:
 	LDAPErrUnwillingToPerform() : LDAPException() {}
 	LDAPErrUnwillingToPerform(const char *str) : LDAPException(str) {}
+	LDAPErrUnwillingToPerform(const char *str, std::string& diag) : LDAPException(str, diag) {}
 };
 
 class LDAPErrLoopDetect : public LDAPException
@@ -211,6 +241,7 @@ class LDAPErrLoopDetect : public LDAPException
     public:
 	LDAPErrLoopDetect() : LDAPException() {}
 	LDAPErrLoopDetect(const char *str) : LDAPException(str) {}
+	LDAPErrLoopDetect(const char *str, std::string& diag) : LDAPException(str, diag) {}
 };
 
 class LDAPErrNamingViolation : public LDAPException
@@ -218,6 +249,7 @@ class LDAPErrNamingViolation : public LDAPException
     public:
 	LDAPErrNamingViolation() : LDAPException() {}
 	LDAPErrNamingViolation(const char *str) : LDAPException(str) {}
+	LDAPErrNamingViolation(const char *str, std::string& diag) : LDAPException(str, diag) {}
 };
 
 class LDAPErrObjectClassViolation : public LDAPException
@@ -225,6 +257,7 @@ class LDAPErrObjectClassViolation : public LDAPException
     public:
 	LDAPErrObjectClassViolation() : LDAPException() {}
 	LDAPErrObjectClassViolation(const char *str) : LDAPException(str) {}
+	LDAPErrObjectClassViolation(const char *str, std::string& diag) : LDAPException(str, diag) {}
 };
 
 class LDAPErrNotAllowedOnNonleaf : public LDAPException
@@ -232,6 +265,7 @@ class LDAPErrNotAllowedOnNonleaf : public LDAPException
     public:
 	LDAPErrNotAllowedOnNonleaf() : LDAPException() {}
 	LDAPErrNotAllowedOnNonleaf(const char *str) : LDAPException(str) {}
+	LDAPErrNotAllowedOnNonleaf(const char *str, std::string& diag) : LDAPException(str, diag) {}
 };
 
 class LDAPErrNotAllowedOnRDN : public LDAPException
@@ -239,6 +273,7 @@ class LDAPErrNotAllowedOnRDN : public LDAPException
     public:
 	LDAPErrNotAllowedOnRDN() : LDAPException() {}
 	LDAPErrNotAllowedOnRDN(const char *str) : LDAPException(str) {}
+	LDAPErrNotAllowedOnRDN(const char *str, std::string& diag) : LDAPException(str, diag) {}
 };
 
 class LDAPErrAlreadyExists : public LDAPException
@@ -246,6 +281,7 @@ class LDAPErrAlreadyExists : public LDAPException
     public:
 	LDAPErrAlreadyExists() : LDAPException() {}
 	LDAPErrAlreadyExists(const char *str) : LDAPException(str) {}
+	LDAPErrAlreadyExists(const char *str, std::string& diag) : LDAPException(str, diag) {}
 };
 
 class LDAPErrNoObjectClassMods : public LDAPException
@@ -253,6 +289,7 @@ class LDAPErrNoObjectClassMods : public LDAPException
     public:
 	LDAPErrNoObjectClassMods() : LDAPException() {}
 	LDAPErrNoObjectClassMods(const char *str) : LDAPException(str) {}
+	LDAPErrNoObjectClassMods(const char *str, std::string& diag) : LDAPException(str, diag) {}
 };
 
 class LDAPErrOther : public LDAPException
@@ -260,6 +297,7 @@ class LDAPErrOther : public LDAPException
     public:
 	LDAPErrOther() : LDAPException() {}
 	LDAPErrOther(const char *str) : LDAPException(str) {}
+	LDAPErrOther(const char *str, std::string& diag) : LDAPException(str, diag) {}
 };
 
 /* API error codes. */
@@ -268,6 +306,7 @@ class LDAPErrServerDown : public LDAPException
     public:
 	LDAPErrServerDown() : LDAPException() {}
 	LDAPErrServerDown(const char *str) : LDAPException(str) {}
+	LDAPErrServerDown(const char *str, std::string& diag) : LDAPException(str, diag) {}
 };
 
 class LDAPErrLocalError : public LDAPException
@@ -275,6 +314,7 @@ class LDAPErrLocalError : public LDAPException
     public:
 	LDAPErrLocalError() : LDAPException() {}
 	LDAPErrLocalError(const char *str) : LDAPException(str) {}
+	LDAPErrLocalError(const char *str, std::string& diag) : LDAPException(str, diag) {}
 };
 
 class LDAPErrEncodingError : public LDAPException
@@ -282,6 +322,7 @@ class LDAPErrEncodingError : public LDAPException
     public:
 	LDAPErrEncodingError() : LDAPException() {}
 	LDAPErrEncodingError(const char *str) : LDAPException(str) {}
+	LDAPErrEncodingError(const char *str, std::string& diag) : LDAPException(str, diag) {}
 };
 
 class LDAPErrDecodingError : public LDAPException
@@ -289,6 +330,7 @@ class LDAPErrDecodingError : public LDAPException
     public:
 	LDAPErrDecodingError() : LDAPException() {}
 	LDAPErrDecodingError(const char *str) : LDAPException(str) {}
+	LDAPErrDecodingError(const char *str, std::string& diag) : LDAPException(str, diag) {}
 };
 
 class LDAPErrTimeout : public LDAPException
@@ -296,6 +338,7 @@ class LDAPErrTimeout : public LDAPException
     public:
 	LDAPErrTimeout() : LDAPException() {}
 	LDAPErrTimeout(const char *str) : LDAPException(str) {}
+	LDAPErrTimeout(const char *str, std::string& diag) : LDAPException(str, diag) {}
 };
 
 class LDAPErrAuthUnknown : public LDAPException
@@ -303,6 +346,7 @@ class LDAPErrAuthUnknown : public LDAPException
     public:
 	LDAPErrAuthUnknown() : LDAPException() {}
 	LDAPErrAuthUnknown(const char *str) : LDAPException(str) {}
+	LDAPErrAuthUnknown(const char *str, std::string& diag) : LDAPException(str, diag) {}
 };
 
 class LDAPErrFilterError : public LDAPException
@@ -310,6 +354,7 @@ class LDAPErrFilterError : public LDAPException
     public:
 	LDAPErrFilterError() : LDAPException() {}
 	LDAPErrFilterError(const char *str) : LDAPException(str) {}
+	LDAPErrFilterError(const char *str, std::string& diag) : LDAPException(str, diag) {}
 };
 
 class LDAPErrParamError : public LDAPException
@@ -317,6 +362,7 @@ class LDAPErrParamError : public LDAPException
     public:
 	LDAPErrParamError() : LDAPException() {}
 	LDAPErrParamError(const char *str) : LDAPException(str) {}
+	LDAPErrParamError(const char *str, std::string& diag) : LDAPException(str, diag) {}
 };
 
 class LDAPErrNoMemory : public LDAPException
@@ -324,6 +370,7 @@ class LDAPErrNoMemory : public LDAPException
     public:
 	LDAPErrNoMemory() : LDAPException() {}
 	LDAPErrNoMemory(const char *str) : LDAPException(str) {}
+	LDAPErrNoMemory(const char *str, std::string& diag) : LDAPException(str, diag) {}
 };
 
 class LDAPErrUserCancelled : public LDAPException
@@ -331,6 +378,7 @@ class LDAPErrUserCancelled : public LDAPException
     public:
 	LDAPErrUserCancelled() : LDAPException() {}
 	LDAPErrUserCancelled(const char *str) : LDAPException(str) {}
+	LDAPErrUserCancelled(const char *str, std::string& diag) : LDAPException(str, diag) {}
 };
 
 class LDAPErrConnectError : public LDAPException
@@ -338,6 +386,7 @@ class LDAPErrConnectError : public LDAPException
     public:
 	LDAPErrConnectError() : LDAPException() {}
 	LDAPErrConnectError(const char *str) : LDAPException(str) {}
+	LDAPErrConnectError(const char *str, std::string& diag) : LDAPException(str, diag) {}
 };
 
 class LDAPErrNotSupported : public LDAPException
@@ -345,6 +394,7 @@ class LDAPErrNotSupported : public LDAPException
     public:
 	LDAPErrNotSupported() : LDAPException() {}
 	LDAPErrNotSupported(const char *str) : LDAPException(str) {}
+	LDAPErrNotSupported(const char *str, std::string& diag) : LDAPException(str, diag) {}
 };
 
 class LDAPErrControlNotFound : public LDAPException
@@ -352,6 +402,7 @@ class LDAPErrControlNotFound : public LDAPException
     public:
 	LDAPErrControlNotFound() : LDAPException() {}
 	LDAPErrControlNotFound(const char *str) : LDAPException(str) {}
+	LDAPErrControlNotFound(const char *str, std::string& diag) : LDAPException(str, diag) {}
 };
 
 class LDAPErrNoResultsReturned : public LDAPException
@@ -359,6 +410,7 @@ class LDAPErrNoResultsReturned : public LDAPException
     public:
 	LDAPErrNoResultsReturned() : LDAPException() {}
 	LDAPErrNoResultsReturned(const char *str) : LDAPException(str) {}
+	LDAPErrNoResultsReturned(const char *str, std::string& diag) : LDAPException(str, diag) {}
 };
 
 class LDAPErrMoreResultsToReturn : public LDAPException
@@ -366,6 +418,7 @@ class LDAPErrMoreResultsToReturn : public LDAPException
     public:
 	LDAPErrMoreResultsToReturn() : LDAPException() {}
 	LDAPErrMoreResultsToReturn(const char *str) : LDAPException(str) {}
+	LDAPErrMoreResultsToReturn(const char *str, std::string& diag) : LDAPException(str, diag) {}
 };
 
 class LDAPErrClientLoop : public LDAPException
@@ -373,6 +426,7 @@ class LDAPErrClientLoop : public LDAPException
     public:
 	LDAPErrClientLoop() : LDAPException() {}
 	LDAPErrClientLoop(const char *str) : LDAPException(str) {}
+	LDAPErrClientLoop(const char *str, std::string& diag) : LDAPException(str, diag) {}
 };
 
 class LDAPErrReferralLimitExceeded : public LDAPException
@@ -380,9 +434,10 @@ class LDAPErrReferralLimitExceeded : public LDAPException
     public:
 	LDAPErrReferralLimitExceeded() : LDAPException() {}
 	LDAPErrReferralLimitExceeded(const char *str) : LDAPException(str) {}
+	LDAPErrReferralLimitExceeded(const char *str, std::string& diag) : LDAPException(str, diag) {}
 };
 
-void LDAPErrCode2Exception(int errcode);
+void LDAPErrCode2Exception(LDAP* ldap, int errcode);
 
 class LDAPEntry
 {
