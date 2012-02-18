@@ -35,6 +35,8 @@ LDAPEntry::LDAPEntry(LDAPConnection* conn, LDAPMessage* entry)
 	char *attr = ldap_get_dn(_conn->_ldap, entry);
 	BerElement *ptr;
 
+	_isnew = false;
+
 	_dn = std::string(attr);
 	ldap_memfree(attr);
 
