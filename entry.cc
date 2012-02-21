@@ -262,7 +262,7 @@ void LDAPEntry::Output(std::ostream& out)
 	if ((ldif = ldif_put_wrap(LDIF_PUT_VALUE, "dn", bv.bv_val, bv.bv_len,
 			LDIF_LINE_WIDTH)))
 	{
-		out << ldif << std::endl;
+		out << ldif;
 		ber_memfree(ldif);
 	}
 
@@ -273,7 +273,7 @@ void LDAPEntry::Output(std::ostream& out)
 		if ((ldif = ldif_put_wrap(LDIF_PUT_COMMENT, 0, k_NewItemsString.c_str(),
 				k_NewItemsString.length(), LDIF_LINE_WIDTH)))
 		{
-			out << ldif << std::endl;
+			out << ldif;
 			ber_memfree(ldif);
 		}
 
@@ -283,7 +283,7 @@ void LDAPEntry::Output(std::ostream& out)
 					iter->second.c_str(), iter->second.length(),
 					LDIF_LINE_WIDTH)))
 			{
-				out << ldif << std::endl;
+				out << ldif;
 				ber_memfree(ldif);
 			}
 		}
@@ -302,7 +302,7 @@ void LDAPEntry::Output(std::ostream& out)
 				if ((ldif = ldif_put_wrap(LDIF_PUT_VALUE, iter->first.c_str(),
 						v_iter->c_str(), v_iter->length(), LDIF_LINE_WIDTH)))
 				{
-					out << ldif << std::endl;
+					out << ldif;
 					ber_memfree(ldif);
 				}
 			}
