@@ -2,14 +2,18 @@
 #include "config.h"
 #endif
 #include <string>
+#include <iostream>
 #include <vector>
 #include <map>
 #include <memory>
 #include "ldap++.h"
 #include <ldap.h>
+#include <ldif.h>
 
 namespace ldap_client
 {
+const std::string k_NewItemsString = "All items in this file are new.";
+
 /**
  * Create an entirely new LDAP entry.
  *
@@ -242,5 +246,67 @@ void LDAPEntry::Sync()
 
 	if (rc != LDAP_SUCCESS)
 		LDAPErrCode2Exception(_conn->_ldap, rc);
+}
+
+/**
+ * Write the object to the given output stream in LDIF format.
+ */
+void LDAPEntry::Output(std::ostream& out)
+{
+	BerElement* ber = 0;
+	struct berval bv;
+	struct berval* bvals;
+	struct berval** bvp;
+	char* ldif;
+
+	if ((ldif = ldif_put_wrap(LDIF_PUT_VALUE, "dn", bv.bv_val, bv.bv_len,
+			LDIF_LINE_WIDTH)))
+	{
+		out << ldif << std::endl;
+		ber_memfree(ldif);
+	}
+
+	if (_data.empty())
+	{
+		std::vector<std::pair<std::string, std::string>>::iterator iter;
+
+		if ((ldif = ldif_put_wrap(LDIF_PUT_COMMENT, 0, k_NewItemsString.c_str(),
+				k_NewItemsString.length(), LDIF_LINE_WIDTH)))
+		{
+			out << ldif << std::endl;
+			ber_memfree(ldif);
+		}
+
+		for (iter = _added.begin(); iter != _added.end(); iter++)
+		{
+			if ((ldif = ldif_put_wrap(LDIF_PUT_VALUE, iter->first.c_str(),
+					iter->second.c_str(), iter->second.length(),
+					LDIF_LINE_WIDTH)))
+			{
+				out << ldif << std::endl;
+				ber_memfree(ldif);
+			}
+		}
+	}
+	else
+	{
+		std::map<std::string, std::vector<std::string>*>::iterator iter;
+
+		for (iter = _data.begin(); iter != _data.end(); iter++)
+		{
+			std::vector<std::string>::iterator v_iter;
+
+			for (v_iter = iter->second->begin();
+					v_iter != iter->second->end(); v_iter++)
+			{
+				if ((ldif = ldif_put_wrap(LDIF_PUT_VALUE, iter->first.c_str(),
+						v_iter->c_str(), v_iter->length(), LDIF_LINE_WIDTH)))
+				{
+					out << ldif << std::endl;
+					ber_memfree(ldif);
+				}
+			}
+		}
+	}
 }
 }

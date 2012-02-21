@@ -456,6 +456,8 @@ class LDAPEntry
 	void RemoveAllValues(std::string attribute);
 	void Sync();
 
+	void Output(std::ostream& out);
+
     private:
 	LDAPConnection *_conn;
 	std::string _dn;
