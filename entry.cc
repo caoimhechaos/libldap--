@@ -12,7 +12,8 @@
 
 namespace ldap_client
 {
-const std::string k_NewItemsString = "All items in this file are new.";
+static const std::string k_NewItemsString =
+	"All items in this file are new.";
 
 /**
  * Create an entirely new LDAP entry.
