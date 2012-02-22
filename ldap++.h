@@ -464,8 +464,8 @@ class LDAPEntry
 	std::map<std::string, std::vector<std::string>*> _data;
 	bool _isnew;
 
-	std::vector<std::pair<std::string, std::string>> _added;
-	std::vector<std::pair<std::string, std::string>> _removed;
+	std::map<std::string, std::vector<std::string>*> _added;
+	std::map<std::string, std::vector<std::string>*> _removed;
 };
 
 class LDAPResult

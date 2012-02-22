@@ -141,7 +141,11 @@ void LDAPEntry::AddValue(std::string attribute, std::string value)
 		_data[attribute] = new std::vector<std::string>;
 
 	_data[attribute]->push_back(value);
-	_added.push_back(make_pair(attribute, value));
+
+	if (_added[attribute] == 0)
+		_added[attribute] = new std::vector<std::string>;
+
+	_added[attribute]->push_back(value);
 }
 
 /**
@@ -160,7 +164,12 @@ void LDAPEntry::RemoveValue(std::string attribute, std::string value)
 
 	for (iter = _data[attribute]->begin(); iter != _data[attribute]->end(); iter++)
 		if (!(*iter).compare(value))
-			_removed.push_back(make_pair(attribute, value));
+		{
+			if (_removed[attribute] == 0)
+				_removed[attribute] = new std::vector<std::string>;
+
+			_removed[attribute]->push_back(value);
+		}
 
 	if (_data[attribute]->empty())
 		_data.erase(attribute);
@@ -180,7 +189,12 @@ void LDAPEntry::RemoveAllValues(std::string attribute)
 		return;
 
 	for (iter = _data[attribute]->begin(); iter != _data[attribute]->end(); iter++)
-		_removed.push_back(make_pair(attribute, (*iter)));
+	{
+		if (_removed[attribute] == 0)
+			_removed[attribute] = new std::vector<std::string>;
+
+		_removed[attribute]->push_back((*iter));
+	}
 
 	_data.erase(attribute);
 }
@@ -193,7 +207,13 @@ void LDAPEntry::RemoveAllValues(std::string attribute)
  */
 void LDAPEntry::Sync()
 {
-	std::vector<std::pair<std::string, std::string>>::iterator iter;
+	// TODO(caoimhe): the bookkeeping in this method is terrible.
+	std::map<std::string, std::vector<std::string>*>::iterator iter;
+	std::vector<std::string>::iterator v_iter;
+	std::vector<char*> cleanup;
+	std::vector<char*>::iterator c_iter;
+	std::vector<std::vector<char*>* > v_cleanup;
+	std::vector<std::vector<char*>* >::iterator vc_iter;
 	std::vector<LDAPMod*> mods;
 	std::vector<LDAPMod*>::iterator m_iter;
 	int rc;
@@ -202,11 +222,26 @@ void LDAPEntry::Sync()
 	{
 		LDAPMod* mod = new LDAPMod;
 		std::vector<char*>* values = new std::vector<char*>;
+		char* newval;
 
-		values->push_back(strdup((*iter).second.c_str()));
+		for (v_iter = _removed[iter->first]->begin();
+				v_iter != _removed[iter->first]->end();
+				v_iter++)
+		{
+			newval = strdup(v_iter->c_str());
+			cleanup.push_back(newval);
+			values->push_back(newval);
+		}
+
+		// NULL terminate values.
+		values->push_back(0);
+
+		newval = strdup(iter->first.c_str());
+		cleanup.push_back(newval);
+		v_cleanup.push_back(values);
 
 		mod->mod_op = LDAP_MOD_DELETE;
-		mod->mod_type = strdup((*iter).first.c_str());
+		mod->mod_type = newval;
 		mod->mod_vals.modv_strvals = &(*values)[0];
 
 		mods.push_back(mod);
@@ -216,13 +251,26 @@ void LDAPEntry::Sync()
 	{
 		LDAPMod* mod = new LDAPMod;
 		std::vector<char*>* values = new std::vector<char*>;
+		char* newval;
 
-		values->push_back(strdup((*iter).second.c_str()));
-		// This needs to be NULL terminated.
+		for (v_iter = _added[iter->first]->begin();
+				v_iter != _added[iter->first]->end();
+				v_iter++)
+		{
+			newval = strdup(v_iter->c_str());
+			cleanup.push_back(newval);
+			values->push_back(newval);
+		}
+
+		// NULL terminate values.
 		values->push_back(0);
 
+		newval = strdup(iter->first.c_str());
+		cleanup.push_back(newval);
+		v_cleanup.push_back(values);
+
 		mod->mod_op = LDAP_MOD_ADD;
-		mod->mod_type = strdup((*iter).first.c_str());
+		mod->mod_type = newval;
 		mod->mod_vals.modv_strvals = &(*values)[0];
 
 		mods.push_back(mod);
@@ -238,11 +286,13 @@ void LDAPEntry::Sync()
 
 	for (m_iter = mods.begin(); m_iter != mods.end(); m_iter++)
 		if (*m_iter)
-		{
-			free((*m_iter)->mod_type);
-			free((*m_iter)->mod_vals.modv_strvals);
 			delete *m_iter;
-		}
+
+	for (vc_iter = v_cleanup.begin(); vc_iter != v_cleanup.end(); vc_iter++)
+		delete (*vc_iter);
+
+	for (c_iter = cleanup.begin(); c_iter != cleanup.end(); c_iter++)
+		free(*c_iter);
 
 	if (rc != LDAP_SUCCESS)
 		LDAPErrCode2Exception(_conn->_ldap, rc);
@@ -259,8 +309,8 @@ void LDAPEntry::Output(std::ostream& out)
 	struct berval** bvp;
 	char* ldif;
 
-	if ((ldif = ldif_put_wrap(LDIF_PUT_VALUE, "dn", bv.bv_val, bv.bv_len,
-			LDIF_LINE_WIDTH)))
+	if ((ldif = ldif_put_wrap(LDIF_PUT_VALUE, "dn", _dn.c_str(),
+			_dn.length(), LDIF_LINE_WIDTH)))
 	{
 		out << ldif;
 		ber_memfree(ldif);
@@ -268,7 +318,7 @@ void LDAPEntry::Output(std::ostream& out)
 
 	if (_data.empty())
 	{
-		std::vector<std::pair<std::string, std::string>>::iterator iter;
+		std::map<std::string, std::vector<std::string>*>::iterator iter;
 
 		if ((ldif = ldif_put_wrap(LDIF_PUT_COMMENT, 0, k_NewItemsString.c_str(),
 				k_NewItemsString.length(), LDIF_LINE_WIDTH)))
@@ -279,13 +329,17 @@ void LDAPEntry::Output(std::ostream& out)
 
 		for (iter = _added.begin(); iter != _added.end(); iter++)
 		{
-			if ((ldif = ldif_put_wrap(LDIF_PUT_VALUE, iter->first.c_str(),
-					iter->second.c_str(), iter->second.length(),
-					LDIF_LINE_WIDTH)))
-			{
-				out << ldif;
-				ber_memfree(ldif);
-			}
+			std::vector<std::string>::iterator v_iter;
+
+			for (v_iter = iter->second->begin();
+					v_iter != iter->second->end(); v_iter++)
+				if ((ldif = ldif_put_wrap(LDIF_PUT_VALUE,
+						iter->first.c_str(), v_iter->c_str(),
+						v_iter->length(), LDIF_LINE_WIDTH)))
+				{
+					out << ldif;
+					ber_memfree(ldif);
+				}
 		}
 	}
 	else
