@@ -48,7 +48,7 @@ LDAPEntry::LDAPEntry(LDAPConnection* conn, LDAPMessage* entry)
 	for (attr = ldap_first_attribute(_conn->_ldap, entry, &ptr);
 		attr != 0; attr = ldap_next_attribute(_conn->_ldap, entry, ptr))
 	{
-		std::vector<std::string>* values = new std::vector<std::string>;
+		SearchableVector<std::string>* values = new SearchableVector<std::string>;
 		struct berval **bv =
 				ldap_get_values_len(_conn->_ldap, entry, attr);
 
@@ -70,7 +70,7 @@ LDAPEntry::LDAPEntry(LDAPConnection* conn, LDAPMessage* entry)
  */
 LDAPEntry::~LDAPEntry()
 {
-	std::map<std::string, std::vector<std::string>*>::iterator iter;
+	std::map<std::string, SearchableVector<std::string>*>::iterator iter;
 
 	for (iter = _data.begin(); iter != _data.end(); iter++)
 		delete (*iter).second;
@@ -92,10 +92,10 @@ std::string LDAPEntry::GetDN()
  *
  * @return Pointer to a vector of strings with the attribute names.
  */
-std::vector<std::string>* LDAPEntry::GetKeys()
+SearchableVector<std::string>* LDAPEntry::GetKeys()
 {
-	std::map<std::string, std::vector<std::string>*>::iterator iter;
-	std::vector<std::string>* rv = new std::vector<std::string>();
+	std::map<std::string, SearchableVector<std::string>*>::iterator iter;
+	SearchableVector<std::string>* rv = new SearchableVector<std::string>();
 
 	for (iter = _data.begin(); iter != _data.end(); iter++)
 		rv->push_back((*iter).first);
@@ -109,7 +109,7 @@ std::vector<std::string>* LDAPEntry::GetKeys()
  * @param attribute Name of the LDAP attribute.
  * @return Pointer to a vector of strings with the values.
  */
-std::vector<std::string>* LDAPEntry::GetValue(std::string attribute)
+SearchableVector<std::string>* LDAPEntry::GetValue(std::string attribute)
 {
 	return _data[attribute];
 }
@@ -139,12 +139,12 @@ std::string LDAPEntry::GetFirstValue(std::string attribute)
 void LDAPEntry::AddValue(std::string attribute, std::string value)
 {
 	if (_data[attribute] == 0)
-		_data[attribute] = new std::vector<std::string>;
+		_data[attribute] = new SearchableVector<std::string>;
 
 	_data[attribute]->push_back(value);
 
 	if (_added[attribute] == 0)
-		_added[attribute] = new std::vector<std::string>;
+		_added[attribute] = new SearchableVector<std::string>;
 
 	_added[attribute]->push_back(value);
 }
@@ -157,7 +157,7 @@ void LDAPEntry::AddValue(std::string attribute, std::string value)
  */
 void LDAPEntry::RemoveValue(std::string attribute, std::string value)
 {
-	std::vector<std::string>::iterator iter;
+	SearchableVector<std::string>::iterator iter;
 
 	// Bail out early if the key isn't in the record.
 	if (_data[attribute] == 0)
@@ -167,7 +167,7 @@ void LDAPEntry::RemoveValue(std::string attribute, std::string value)
 		if (!(*iter).compare(value))
 		{
 			if (_removed[attribute] == 0)
-				_removed[attribute] = new std::vector<std::string>;
+				_removed[attribute] = new SearchableVector<std::string>;
 
 			_removed[attribute]->push_back(value);
 		}
@@ -183,7 +183,7 @@ void LDAPEntry::RemoveValue(std::string attribute, std::string value)
  */
 void LDAPEntry::RemoveAllValues(std::string attribute)
 {
-	std::vector<std::string>::iterator iter;
+	SearchableVector<std::string>::iterator iter;
 
 	// Bail out early if the key isn't in the record.
 	if (_data[attribute] == 0)
@@ -192,7 +192,7 @@ void LDAPEntry::RemoveAllValues(std::string attribute)
 	for (iter = _data[attribute]->begin(); iter != _data[attribute]->end(); iter++)
 	{
 		if (_removed[attribute] == 0)
-			_removed[attribute] = new std::vector<std::string>;
+			_removed[attribute] = new SearchableVector<std::string>;
 
 		_removed[attribute]->push_back((*iter));
 	}
@@ -209,8 +209,8 @@ void LDAPEntry::RemoveAllValues(std::string attribute)
 void LDAPEntry::Sync()
 {
 	// TODO(tonnerre): the bookkeeping in this method is terrible.
-	std::map<std::string, std::vector<std::string>*>::iterator iter;
-	std::vector<std::string>::iterator v_iter;
+	std::map<std::string, SearchableVector<std::string>*>::iterator iter;
+	SearchableVector<std::string>::iterator v_iter;
 	std::vector<char*> cleanup;
 	std::vector<char*>::iterator c_iter;
 	std::vector<std::vector<char*>* > v_cleanup;
@@ -319,7 +319,7 @@ void LDAPEntry::Output(std::ostream& out)
 
 	if (_data.empty())
 	{
-		std::map<std::string, std::vector<std::string>*>::iterator iter;
+		std::map<std::string, SearchableVector<std::string>*>::iterator iter;
 
 		if ((ldif = ldif_put_wrap(LDIF_PUT_COMMENT, 0, k_NewItemsString.c_str(),
 				k_NewItemsString.length(), LDIF_LINE_WIDTH)))
@@ -345,7 +345,7 @@ void LDAPEntry::Output(std::ostream& out)
 	}
 	else
 	{
-		std::map<std::string, std::vector<std::string>*>::iterator iter;
+		std::map<std::string, SearchableVector<std::string>*>::iterator iter;
 
 		for (iter = _data.begin(); iter != _data.end(); iter++)
 		{
