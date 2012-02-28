@@ -512,6 +512,7 @@ class LDAPConnection
 	void SetVersion(int newversion);
 	void SimpleBind(std::string user, std::string password);
 	void SASLBind(std::string user, std::string password);
+	void SetResultSizeLimit(int limit);
 
 	LDAPResult* Search(const std::string base, const std::string filter);
 	LDAPResult* Search(const std::string base, const std::string filter,
@@ -528,6 +529,7 @@ class LDAPConnection
 
     protected:
 	LDAP *_ldap;
+	int _size_limit;
 };
 
 }
