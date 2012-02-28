@@ -10,6 +10,21 @@ namespace ldap_client
 {
 const std::vector<std::string> kLdapFilterAll = { "+" };
 
+template<class T>
+class SearchableVector : public std::vector<T> {
+public:
+	bool Contains(T val) {
+		typename std::vector<T>::const_iterator it;
+
+		for (it = this->begin(); it != this->end(); it++)
+			if (*it == val)
+				return true;
+
+		return false;
+
+	}
+};
+
 class LDAPConnection;
 
 class LDAPException : public std::exception {
@@ -447,9 +462,9 @@ class LDAPEntry
 	~LDAPEntry();
 
 	std::string GetDN();
-	std::vector<std::string>* GetKeys();
+	SearchableVector<std::string>* GetKeys();
 	std::string GetFirstValue(std::string key);
-	std::vector<std::string>* GetValue(std::string key);
+	SearchableVector<std::string>* GetValue(std::string key);
 
 	void AddValue(std::string key, std::string value);
 	void RemoveValue(std::string key, std::string value);
@@ -461,11 +476,11 @@ class LDAPEntry
     private:
 	LDAPConnection *_conn;
 	std::string _dn;
-	std::map<std::string, std::vector<std::string>*> _data;
+	std::map<std::string, SearchableVector<std::string>*> _data;
 	bool _isnew;
 
-	std::map<std::string, std::vector<std::string>*> _added;
-	std::map<std::string, std::vector<std::string>*> _removed;
+	std::map<std::string, SearchableVector<std::string>*> _added;
+	std::map<std::string, SearchableVector<std::string>*> _removed;
 };
 
 class LDAPResult
