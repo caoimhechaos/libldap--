@@ -52,6 +52,7 @@ LDAPConnection::LDAPConnection(std::string uri, int version)
 		LDAPErrCode2Exception(_ldap, rc);
 
 	SetVersion(version);
+	_size_limit = -1;
 }
 
 /**
@@ -146,6 +147,16 @@ void LDAPConnection::SASLBind(std::string user, std::string password)
 }
 
 /**
+ * Set the number of records to be returned in an LDAP query.
+ *
+ * @param newlimit Number of records to return in subsequent calls to Search.
+ */
+void LDAPConnection::SetResultSizeLimit(int limit)
+{
+	_size_limit = limit;
+}
+
+/**
  * Search for LDAP records matching a given filter.
  *
  * @param base    Search base to start looking from.
@@ -175,7 +186,7 @@ LDAPResult* LDAPConnection::Search(const std::string base, int scope,
 	attrlist.push_back(0);
 
 	rc = ldap_search_ext_s(_ldap, base.c_str(), scope,
-		filter.c_str(), &attrlist[0], 0, 0, 0, &tv, 0, &msg);
+		filter.c_str(), &attrlist[0], 0, 0, 0, &tv, _size_limit, &msg);
 
 	if (rc)
 		LDAPErrCode2Exception(_ldap, rc);
