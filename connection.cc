@@ -173,10 +173,17 @@ LDAPResult* LDAPConnection::Search(const std::string base, int scope,
 	long timeout)
 {
 	std::vector<char*> attrlist;
+	std::vector<LDAPMessage*> msgs;
+	std::vector<LDAPControl*> ctrls;
+	LDAPControl* pageCtrl, *ctrl;
+	LDAPControl** returnedCtrl;
+	struct berval* cookie = new berval;
 	timeval tv;
 	LDAPMessage *msg;
-	int rc, i;
+	int rc, i, errCode = 0, numResults = 0;
 
+	cookie->bv_len = 0;
+	cookie->bv_val = 0;
 	tv.tv_sec = timeout / 1000;
 	tv.tv_usec = (timeout % 1000) * 1000;
 
@@ -185,13 +192,62 @@ LDAPResult* LDAPConnection::Search(const std::string base, int scope,
 
 	attrlist.push_back(0);
 
-	rc = ldap_search_ext_s(_ldap, base.c_str(), scope,
-		filter.c_str(), &attrlist[0], 0, 0, 0, &tv, _size_limit, &msg);
+	ctrl = new LDAPControl;
+	ctrl->ldctl_oid = (char*) LDAP_CONTROL_PAGEDRESULTS;
+	ctrl->ldctl_iscritical = 0;
 
-	if (rc)
-		LDAPErrCode2Exception(_ldap, rc);
+	ctrls.push_back(ctrl);
+	ctrls.push_back(0);
 
-	return new LDAPResult(this, msg);
+	do {
+		rc = ldap_create_page_control_value(_ldap, _size_limit, cookie,
+				&ctrl->ldctl_value);
+		if (rc)
+			LDAPErrCode2Exception(_ldap, rc);
+
+		if (cookie->bv_val != NULL)
+		{
+			ber_memfree(cookie->bv_val);
+			cookie->bv_val = 0;
+			cookie->bv_len = 0;
+		}
+
+		rc = ldap_search_ext_s(_ldap, base.c_str(), scope,
+				filter.c_str(), &attrlist[0], 0, &ctrls[0], 0, &tv, 0, &msg);
+		if (rc && rc != LDAP_PARTIAL_RESULTS)
+			LDAPErrCode2Exception(_ldap, rc);
+
+		msgs.push_back(msg);
+
+		rc = ldap_parse_result(_ldap, msg, &errCode, 0, 0, 0,
+				&returnedCtrl, 0);
+		if (rc)
+			LDAPErrCode2Exception(_ldap, rc);
+
+		pageCtrl = ldap_control_find(LDAP_CONTROL_PAGEDRESULTS,
+				returnedCtrl, 0);
+		if (!pageCtrl)
+		{
+			ldap_controls_free(returnedCtrl);
+			break;
+		}
+
+		if (cookie)
+		{
+			ber_bvfree(cookie);
+			cookie = 0;
+		}
+
+		rc = ldap_parse_pageresponse_control(_ldap, pageCtrl,
+				&i, cookie);
+		ldap_controls_free(returnedCtrl);
+		numResults += ldap_count_entries(_ldap, msg);
+	} while (numResults < i);
+
+	ber_bvfree(cookie);
+	delete cookie;
+
+	return new LDAPResult(this, msgs);
 }
 
 /**

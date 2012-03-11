@@ -14,18 +14,23 @@ namespace ldap_client
  * @param conn Connection the object was fetched over.
  * @param msg  LDAPMessage containing the retrieved data.
  */
-LDAPResult::LDAPResult(LDAPConnection* conn, LDAPMessage* msg)
+LDAPResult::LDAPResult(LDAPConnection* conn, std::vector<LDAPMessage*> msgs)
 : _conn(conn)
 {
-	LDAPMessage *e = ldap_first_entry(_conn->_ldap, msg);
+	std::vector<LDAPMessage*>::iterator iter;
 
-	if (e != NULL) do
+	for (iter = msgs.begin(); iter != msgs.end(); iter++)
 	{
-		_entries.push_back(LDAPEntry(_conn, e));
-	}
-	while ((e = ldap_next_entry(_conn->_ldap, e)) != NULL);
+		LDAPMessage *e = ldap_first_entry(_conn->_ldap, *iter);
 
-	ldap_msgfree(msg);
+		if (e != NULL) do
+		{
+			_entries.push_back(LDAPEntry(_conn, e));
+		}
+		while ((e = ldap_next_entry(_conn->_ldap, e)) != NULL);
+
+		ldap_msgfree(*iter);
+	}
 }
 
 /**
