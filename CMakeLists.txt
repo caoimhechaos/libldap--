@@ -5,3 +5,10 @@ set(ldap++_library_type SHARED)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
 add_library (ldap++ SHARED connection.cc entry.cc exceptions.cc result.cc)
 target_link_libraries(ldap++ ldap)
+
+install(TARGETS ldap++
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+)
+install(FILES ldap++.h
+  DESTINATION include)
