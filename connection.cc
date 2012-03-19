@@ -177,10 +177,10 @@ LDAPResult* LDAPConnection::Search(const std::string base, int scope,
 	std::vector<LDAPControl*> ctrls;
 	LDAPControl* pageCtrl, *ctrl;
 	LDAPControl** returnedCtrl;
-	struct berval* cookie = new berval;
+	berval* cookie = new berval;
 	timeval tv;
 	LDAPMessage *msg;
-	int rc, i, errCode = 0, numResults = 0;
+	int rc, i = 0, errCode = 0, numResults = 0, count = 0;
 
 	cookie->bv_len = 0;
 	cookie->bv_val = 0;
@@ -200,12 +200,12 @@ LDAPResult* LDAPConnection::Search(const std::string base, int scope,
 	ctrls.push_back(0);
 
 	do {
-		rc = ldap_create_page_control_value(_ldap, _size_limit, cookie,
-				&ctrl->ldctl_value);
+		rc = ldap_create_page_control_value(_ldap, _size_limit,
+                                cookie, &ctrl->ldctl_value);
 		if (rc)
 			LDAPErrCode2Exception(_ldap, rc);
 
-		if (cookie->bv_val != NULL)
+		if (cookie && cookie->bv_val != NULL)
 		{
 			ber_memfree(cookie->bv_val);
 			cookie->bv_val = 0;
@@ -214,7 +214,8 @@ LDAPResult* LDAPConnection::Search(const std::string base, int scope,
 
 		rc = ldap_search_ext_s(_ldap, base.c_str(), scope,
 				filter.c_str(), &attrlist[0], 0, &ctrls[0], 0, &tv, 0, &msg);
-		if (rc && rc != LDAP_PARTIAL_RESULTS)
+		if (rc && rc != LDAP_PARTIAL_RESULTS &&
+			rc != LDAP_ADMINLIMIT_EXCEEDED)
 			LDAPErrCode2Exception(_ldap, rc);
 
 		msgs.push_back(msg);
@@ -234,18 +235,31 @@ LDAPResult* LDAPConnection::Search(const std::string base, int scope,
 
 		if (cookie)
 		{
-			ber_bvfree(cookie);
-			cookie = 0;
+			if (cookie->bv_val)
+				ber_memfree(cookie->bv_val);
+			cookie->bv_val = 0;
+			cookie->bv_len = 0;
 		}
 
 		rc = ldap_parse_pageresponse_control(_ldap, pageCtrl,
 				&i, cookie);
-		ldap_controls_free(returnedCtrl);
-		numResults += ldap_count_entries(_ldap, msg);
-	} while (numResults < i);
+		if (rc)
+			LDAPErrCode2Exception(_ldap, rc);
 
-	ber_bvfree(cookie);
-	delete cookie;
+		ldap_controls_free(returnedCtrl);
+		count = ldap_count_entries(_ldap, msg);
+		numResults += count;
+	} while (cookie->bv_len > 0 && strlen(cookie->bv_val) > 0);
+
+	if (cookie)
+	{
+	       if (cookie->bv_val)
+		       ber_memfree(cookie->bv_val);
+
+		cookie->bv_val = 0;
+		cookie->bv_len = 0;
+		delete cookie;
+	}
 
 	return new LDAPResult(this, msgs);
 }
