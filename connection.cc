@@ -215,7 +215,8 @@ LDAPResult* LDAPConnection::Search(const std::string base, int scope,
 		rc = ldap_search_ext_s(_ldap, base.c_str(), scope,
 				filter.c_str(), &attrlist[0], 0, &ctrls[0], 0, &tv, 0, &msg);
 		if (rc && rc != LDAP_PARTIAL_RESULTS &&
-			rc != LDAP_ADMINLIMIT_EXCEEDED)
+			rc != LDAP_ADMINLIMIT_EXCEEDED &&
+			rc != LDAP_SIZELIMIT_EXCEEDED)
 			LDAPErrCode2Exception(_ldap, rc);
 
 		msgs.push_back(msg);
