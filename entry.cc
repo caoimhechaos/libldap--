@@ -8,7 +8,9 @@
 #include <memory>
 #include "ldap++.h"
 #include <ldap.h>
+#ifdef HAVE_LDIF_H
 #include <ldif.h>
+#endif
 
 namespace ldap_client
 {
@@ -299,6 +301,7 @@ void LDAPEntry::Sync()
 		LDAPErrCode2Exception(_conn->_ldap, rc);
 }
 
+#ifdef HAVE_LDIF_H
 /**
  * Write the object to the given output stream in LDIF format.
  */
@@ -364,4 +367,6 @@ void LDAPEntry::Output(std::ostream& out)
 		}
 	}
 }
+#endif /* HAVE_LDIF_H */
+
 }
