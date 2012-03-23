@@ -37,6 +37,22 @@ AC_SUBST(LIBS)
 
 # Checks for header files.
 AC_CHECK_HEADER([ldap.h], [], AC_ERROR([OpenLDAP headers not found]))
+AC_CHECK_HEADERS([ldif.h], [], [],
+[
+#include <stdio.h>
+#ifdef HAVE_SYS_TYPES_H
+#include <sys/types.h>
+#endif
+#ifdef HAVE_STDC_HEADERS
+#include <stdlib.h>
+#include <stddef.h>
+#endif
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
+#include <lber.h>
+#include <ldif.h>
+])
 
 # Checks for typedefs, structures, and compiler characteristics.
 

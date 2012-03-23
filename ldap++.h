@@ -470,7 +470,9 @@ class LDAPEntry
 	void RemoveAllValues(std::string attribute);
 	void Sync();
 
+#ifdef HAVE_LDIF_H
 	void Output(std::ostream& out);
+#endif /* HAVE_LDIF_H */
 
     private:
 	LDAPConnection *_conn;
