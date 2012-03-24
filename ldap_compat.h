@@ -34,5 +34,10 @@ ldap_control_find(
 		LDAPControl **ctrls,
 		LDAPControl ***nextctrlp );
 #endif
+#ifndef HAVE_LDAP_ALLOC_BER_WITH_OPTIONS
+BerElement*
+ldap_alloc_ber_with_options(LDAP *ld);
+#endif
+
 
 #endif /* LDAP_COMPAT_H_ */
