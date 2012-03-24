@@ -40,12 +40,14 @@ void LDAPErrCode2Exception(LDAP* ldap, int errcode)
 	char* diag_string = 0;
 	std::string diag_text;
 
+#ifdef LDAP_OPT_DIAGNOSTIC_MESSAGE
 	if (ldap)
 		ldap_get_option(ldap, LDAP_OPT_DIAGNOSTIC_MESSAGE, &diag_string);
 
 	if (diag_string)
 		diag_text = std::string(diag_string);
 	else
+#endif /* LDAP_OPT_DIAGNOSTIC_MESSAGE */
 		diag_text = std::string();
 
 	if (diag_string)
