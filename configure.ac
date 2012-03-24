@@ -57,6 +57,8 @@ AC_CHECK_HEADERS([ldif.h], [], [],
 # Checks for typedefs, structures, and compiler characteristics.
 
 # Checks for library functions.
+AC_CHECK_FUNCS(ldap_create_page_control_value ldap_control_find \
+	       ldap_parse_pageresponse_control)
 
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
