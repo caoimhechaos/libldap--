@@ -301,12 +301,12 @@ void LDAPEntry::Sync()
 		LDAPErrCode2Exception(_conn->_ldap, rc);
 }
 
-#ifdef HAVE_LDIF_H
 /**
  * Write the object to the given output stream in LDIF format.
  */
 void LDAPEntry::Output(std::ostream& out)
 {
+#ifdef HAVE_LDIF_H
 	BerElement* ber = 0;
 	struct berval bv;
 	struct berval* bvals;
@@ -366,7 +366,7 @@ void LDAPEntry::Output(std::ostream& out)
 			}
 		}
 	}
-}
 #endif /* HAVE_LDIF_H */
+}
 
 }
