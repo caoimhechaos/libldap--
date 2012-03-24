@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include "ldap++.h"
+#include "ldap_compat.h"
 #include <ldap.h>
 
 namespace ldap_client
