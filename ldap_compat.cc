@@ -4,9 +4,15 @@
 #include <ldap.h>
 #include <lber.h>
 
-#ifndef HAVE_LDAP_CREATE_PAGE_CONTROL_VALUE
-BerElement* ldap_alloc_ber_with_options(LDAP *ld);
+#ifndef HAVE_LDAP_ALLOC_BER_WITH_OPTIONS
+BerElement*
+ldap_alloc_ber_with_options(LDAP* ld)
+{
+	return ber_alloc();
+}
+#endif /* HAVE_LDAP_ALLOC_BER_WITH_OPTIONS */
 
+#ifndef HAVE_LDAP_CREATE_PAGE_CONTROL_VALUE
 /* ---------------------------------------------------------------------------
    ldap_create_page_control_value
 
