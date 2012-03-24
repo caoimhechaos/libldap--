@@ -8,7 +8,7 @@
 
 namespace ldap_client
 {
-const std::vector<std::string> kLdapFilterAll = { "+" };
+const std::vector<std::string> kLdapFilterAll(1, "+");
 
 template<class T>
 class SearchableVector : public std::vector<T> {
