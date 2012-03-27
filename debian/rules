@@ -11,4 +11,3 @@
 
 %:
 	dh $@  --with autotools-dev
-	dh_shlibdeps

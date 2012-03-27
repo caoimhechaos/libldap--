@@ -1,4 +1,4 @@
-Source: libldappp0
+Source: libldap++0
 Priority: extra
 Maintainer: Caoimhe Chaos <caoimhechaos@protonmail.com>
 Build-Depends: debhelper (>= 8.0.0), autotools-dev, libldap2-dev (>= 2.4),
@@ -7,13 +7,13 @@ Standards-Version: 3.9.2
 Section: libs
 Homepage: http://www.ancient-solutions.com/
 
-Package: libldappp-dev
+Package: libldap++-dev
 Section: libdevel
 Architecture: any
-Depends: libldappp0 (= ${binary:Version})
+Depends: libldap++0 (= ${binary:Version})
 Description: LDAP client library implementation in C++
 
-Package: libldappp0
+Package: libldap++0
 Section: libs
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, libldap-2.4-2 (>= 2.4)

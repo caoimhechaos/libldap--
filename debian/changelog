@@ -1,4 +1,4 @@
-libldappp0 (1.0-1) unstable; urgency=low
+libldap++0 (1.0-1) unstable; urgency=low
 
   * Initial release (Closes: my desire to add it)
 
